@@ -1,0 +1,61 @@
+app ToDoApp {
+  wasp: {
+    version: "^0.11.7"
+  },
+  title: "ToDoApp",
+
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  }
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.tsx",
+  authRequired: true,
+}
+
+entity Task {=psl
+    id          Int     @id @default(autoincrement())
+    description String
+    isDone      Boolean @default(false)
+    user User? @relation(fields: [userId], references: [id])
+    userId Int?
+psl=}
+
+query getTasks {
+  fn: import {getTasks} from "@server/queries.js",
+  entities: [Task]
+}
+
+action createTask{
+  fn: import {createTask} from "@server/actions.js",
+  entities: [Task]
+}
+
+action updateTask{
+  fn: import {updateTask} from "@server/actions.js",
+  entities: [Task]
+}
+
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import Signup from "@client/SignupPage.tsx"
+}
+
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import Login from "@client/LoginPage.tsx"
+}
+entity User{=psl 
+  id Int @id @default(autoincrement())
+  username String @unique
+  password String 
+  tasks Task[]
+ psl=}
+
+
